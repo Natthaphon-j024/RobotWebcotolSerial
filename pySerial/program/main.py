@@ -7,22 +7,22 @@ from flask import Flask, render_template , request, jsonify
 
 app = Flask(__name__)
 # import Serial.Serialport as Serialport  # Removed as it could not be resolved
+global Arduino 
+# def main():
+   
+#     if Arduino is None:
+#         Getserialport = ser.GetSerialPort()
+#         print(Getserialport)
+#         inputrKey = int(input("Select Serial Port:"))
 
-def main():
-    Arduino = None
-    if Arduino is None:
-        Getserialport = ser.GetSerialPort()
-        print(Getserialport)
-        inputrKey = int(input("Select Serial Port:"))
-
-        if  inputrKey <= len(Getserialport):
-            print("Ok select a valid serial port.")
-            Arduino =  ser.SelectSerPort(Getserialport[0])
-        else:
-            print("Please select a valid serial port.")
-    # while True:
-    # ser.loop(Arduino)
-    return Arduino      
+#         if  inputrKey <= len(Getserialport):
+#             print("Ok select a valid serial port.")
+#             Arduino =  ser.SelectSerPort(Getserialport[0])
+#         else:
+#             print("Please select a valid serial port.")
+#     # while True:
+#     # ser.loop(Arduino)
+#     return Arduino      
       
 @app.route('/')
 def Home():
@@ -32,8 +32,17 @@ def Home():
 def readSerialPort():
     
     if request.method == 'GET':
-        main()
-        return {'status': 'success', 'value': 'Serial port read successfully'}
+        Getserialport = ser.GetSerialPort()
+        return {'status': 'success', 'port': '{}'.format(Getserialport)}, 200
+@app.route('/selectSerialPort', methods=['POST'])
+def selectSerialPort():
+    if request.method == 'POST':
+        port = request.json.get('port')
+        print(port)
+        Arduino = ser.SelectSerPort(port)
+        return {'status': 'success', 'port': '{}'.format(Arduino)}, 200
+    
+    
     
     
 @app.route('/updateValue' ,  methods=['POST' , 'GET'])
@@ -41,7 +50,8 @@ def updateServo():
     if request.method == 'POST':
         value = request.json.get('value')
         print(value)
-        setArduino = main()
+        setArduino =  ser.SelectSerPort("COM6")
+        print(setArduino)
        
         # Here you would typically send the value to the Arduino or process it as needed
         # For example: arduino.write(value.encode())
